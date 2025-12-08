@@ -1,0 +1,7 @@
+# ai-service/endpoints.yml
+
+action_endpoint:
+  url: "http://localhost:5055/webhook"
+  # Add this line to increase the timeout to 5 minutes (300 seconds)
+  # This gives the server plenty of time to download new models.
+  response_timeout: 300

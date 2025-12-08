@@ -1,0 +1,16 @@
+{
+  "0": "ask_date",
+  "1": "ask_name",
+  "2": "ask_team",
+  "3": "ask_time",
+  "4": "ask_weather",
+  "5": "chit_chat",
+  "6": "general_query",
+  "7": "goodbye",
+  "8": "greet",
+  "9": "mention_name",
+  "10": "mention_team",
+  "11": "mood_bad",
+  "12": "mood_great",
+  "13": "thanks"
+}

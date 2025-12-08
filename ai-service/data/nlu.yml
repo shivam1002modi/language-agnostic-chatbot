@@ -1,0 +1,87 @@
+version: "3.1"
+
+nlu:
+- intent: greet
+  examples: |
+    - hey
+    - hello
+    - hi
+    - good morning
+    - good evening
+    - hey there
+    - नमस्ते
+    - नमस्कार
+    - કેમ છો
+
+- intent: goodbye
+  examples: |
+    - bye
+    - goodbye
+    - see you around
+    - see you later
+    - अलविदा
+    - फिर मिलेंगे
+    - આવજો
+
+- intent: document_query
+  examples: |
+    # --- General & Academic ---
+    - show me the exam timetable
+    - where can I find the academic calendar?
+    - what are the library hours?
+    - tell me about the fee structure
+    - what does the document say about the anti-ragging policy?
+    - information on the new library rules
+
+    # --- Philosophy & Abstract Concepts ---
+    - what is the nature of love
+    - can you explain the concept of love
+    - 3 rules of love
+    - describe the triangular theory of love
+    - what are the different forms of love mentioned
+
+    # --- Science & Factual Topics ---
+    - what is a blackhole
+    - tell me about the types of blackholes
+    - explain Hawking Radiation
+    - what are the parts of a black hole
+    - what are dinosaurs
+    - describe the different types of dinosaurs
+    - when was the age of dinosaurs
+    - what did plant-eater dinosaurs eat
+    - tell me about Tyrannosaurus rex
+    - how did dinosaurs go extinct
+
+    # --- Multilingual Examples ---
+    - परीक्षा का टाइमटेबल दिखाओ
+    - नया सर्कुलर कहाँ है?
+    - फीस भरने की आखिरी तारीख क्या है?
+    - हॉस्टल के नियम क्या हैं?
+    - મારું એક્ઝામ ટાઈમટેબલ બતાવો
+    - શૈક્ષણિક કેલેન્ડર ક્યાં છે
+    - લાઇબ્રેરીનો સમય શું છે?
+
+- intent: affirm
+  examples: |
+    - yes
+    - indeed
+    - of course
+    - correct
+    - हाँ
+    - હા
+
+- intent: deny
+  examples: |
+    - no
+    - never
+    - I don't think so
+    - no way
+    - नहीं
+    - ના
+
+- intent: bot_challenge
+  examples: |
+    - are you a bot?
+    - are you human?
+    - am I talking to a bot?
+

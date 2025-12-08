@@ -1,0 +1,62 @@
+{
+  "type": "IntentMaxHistoryTrackerFeaturizer",
+  "state_featurizer": {
+    "action_texts": [],
+    "entity_tag_specs": [],
+    "feature_states": {
+      "intent": {
+        "ask_date": 0,
+        "ask_name": 1,
+        "ask_team": 2,
+        "ask_time": 3,
+        "ask_weather": 4,
+        "back": 5,
+        "chit_chat": 6,
+        "general_query": 7,
+        "goodbye": 8,
+        "greet": 9,
+        "mention_name": 10,
+        "mention_team": 11,
+        "mood_bad": 12,
+        "mood_great": 13,
+        "nlu_fallback": 14,
+        "out_of_scope": 15,
+        "restart": 16,
+        "session_start": 17,
+        "thanks": 18
+      },
+      "action_name": {
+        "action_listen": 0,
+        "action_restart": 1,
+        "action_session_start": 2,
+        "action_default_fallback": 3,
+        "action_deactivate_loop": 4,
+        "action_revert_fallback_events": 5,
+        "action_default_ask_affirmation": 6,
+        "action_default_ask_rephrase": 7,
+        "action_two_stage_fallback": 8,
+        "action_unlikely_intent": 9,
+        "action_back": 10,
+        "...": 11,
+        "action_extract_slots": 12,
+        "utter_ask_date": 13,
+        "utter_ask_help": 14,
+        "utter_ask_time": 15,
+        "utter_ask_weather": 16,
+        "utter_chit_chat": 17,
+        "utter_goodbye": 18,
+        "utter_greet": 19,
+        "utter_mention_name": 20,
+        "utter_mention_team": 21,
+        "utter_mood_bad": 22,
+        "utter_mood_great": 23,
+        "utter_thanks": 24
+      },
+      "entities": {},
+      "slots": {},
+      "active_loop": {}
+    }
+  },
+  "remove_duplicates": true,
+  "max_history": 5
+}

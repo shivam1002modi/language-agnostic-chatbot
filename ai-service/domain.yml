@@ -1,0 +1,28 @@
+# ai-service/domain.yml
+
+version: "3.1"
+
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - document_query
+  - bot_challenge  # <-- The missing intent
+
+responses:
+  utter_greet:
+  - text: "Hey! How can I help you today?"
+
+  utter_goodbye:
+  - text: "Goodbye!"
+
+  utter_iamabot:
+  - text: "I am a bot, powered by Rasa."
+
+actions:
+  - action_query_doc
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

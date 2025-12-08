@@ -1,0 +1,31 @@
+# Global Ignores
+.DS_Store
+Thumbs.db
+*.log
+
+# Node.js
+**/node_modules
+**/npm-debug.log
+**/yarn-error.log
+**/yarn.lock
+**/package-lock.json
+
+# React
+**/build
+**/dist
+
+# Python (AI Service) - CRITICAL
+**/venv
+**/.venv
+**/__pycache__
+**/*.pyc
+
+# Environment Variables
+**/.env
+
+# Rasa & AI Specifics
+**/models/*.tar.gz
+**/vectorstore
+**/.cache
+
+.rasa
