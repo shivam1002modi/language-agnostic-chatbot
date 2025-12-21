@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-// We will create this CSS file in the next step
 import './App.css';
 
 // The proxy in package.json will handle the base URL
@@ -9,7 +8,7 @@ const API_BASE = "";
 function App() {
   const [activeTab, setActiveTab] = useState("chat");
 
-  // Apply global font style
+  // Load Google Fonts dynamically for modern typography
   useEffect(() => {
     const link = document.createElement('link');
     link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap';
@@ -61,7 +60,7 @@ const TabButton = ({ title, isActive, onClick, icon }) => (
   </button>
 );
 
-// --- Chat Panel Component ---
+// --- Chat Panel Component (Text-to-Speech Enabled) ---
 const ChatPanel = () => {
   const [messages, setMessages] = useState([
     {
@@ -71,24 +70,61 @@ const ChatPanel = () => {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  // Generate a random session ID for the user
   const [sessionId] = useState(() => Math.random().toString(36).substr(2, 9));
+  
+  // TTS State
+  const [speechEnabled, setSpeechEnabled] = useState(true); 
+  
   const messagesEndRef = useRef(null);
+  const synthesisRef = useRef(window.speechSynthesis);
 
+  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Safe Cleanup for Speech Synthesis
+  useEffect(() => {
+    const synth = synthesisRef.current;
+    return () => {
+      if (synth) synth.cancel();
+    };
+  }, []);
+
+  // --- Helper: Speak Text ---
+  const speakText = (text) => {
+    if (!speechEnabled || !synthesisRef.current) return;
+    
+    // Stop any currently playing audio
+    synthesisRef.current.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Attempt to use a Google voice if available (better quality)
+    const voices = synthesisRef.current.getVoices();
+    const preferredVoice = voices.find(voice => voice.name.includes("Google US English")) || voices[0];
+    if (preferredVoice) utterance.voice = preferredVoice;
+
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    synthesisRef.current.speak(utterance);
+  };
 
   const pushBotMessage = (botMsg) => {
     let messageText = "I received a response, but it was empty.";
     let sources = [];
 
-    // Rasa's REST channel wraps json_message into 'custom'
+    // Rasa sometimes sends 'custom' payload for rich data, or plain 'text'
     if (botMsg.custom) {
       messageText = botMsg.custom.text || messageText;
       sources = botMsg.custom.sources || [];
     } else if (botMsg.text) {
       messageText = botMsg.text;
     }
+
+    // Read the response aloud
+    speakText(messageText);
 
     setMessages((prev) => [
       ...prev,
@@ -101,11 +137,15 @@ const ChatPanel = () => {
   };
 
   const sendMessage = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!input.trim() || isLoading) return;
 
+    // Silence the bot if the user interrupts
+    if (synthesisRef.current) synthesisRef.current.cancel();
+    
     const userMessage = { text: input, sender: "user" };
     setMessages((prev) => [...prev, userMessage]);
+    
     const query = input;
     setInput("");
     setIsLoading(true);
@@ -117,7 +157,7 @@ const ChatPanel = () => {
       });
 
       let messageReceived = false;
-      if (response.data && response.data.length > 0) {
+      if (response.data && Array.isArray(response.data) && response.data.length > 0) {
           response.data.forEach((botMsg) => {
             if (botMsg.custom || botMsg.text) {
               pushBotMessage(botMsg);
@@ -127,20 +167,15 @@ const ChatPanel = () => {
       }
 
       if (!messageReceived) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            text: "Sorry, I didn’t get a specific response. Please try rephrasing.",
-            sender: "bot",
-          },
-        ]);
+        const errorMsg = "Sorry, I didn’t get a specific response.";
+        setMessages((prev) => [...prev, { text: errorMsg, sender: "bot" }]);
+        speakText(errorMsg);
       }
     } catch (error) {
       console.error("Error sending message:", error);
-      const errorText =
-        error.response?.data?.error ||
-        "Sorry, I cannot connect to the AI brain. Please check the backend server.";
+      const errorText = error.response?.data?.error || "Sorry, I cannot connect to the AI brain.";
       setMessages((prev) => [...prev, { text: String(errorText), sender: "bot" }]);
+      speakText(String(errorText));
     } finally {
       setIsLoading(false);
     }
@@ -151,26 +186,21 @@ const ChatPanel = () => {
       <div className="message-area">
         {messages.map((msg, index) => {
           const isUser = msg.sender === "user";
-          const messageRowClass = `message-row ${isUser ? 'message-row-user' : 'message-row-bot'}`;
-          const messageBubbleClass = `message-bubble ${isUser ? 'message-bubble-user' : 'message-bubble-bot'}`;
-          
           return (
-            <div key={index} className={messageRowClass}>
-              <div className={messageBubbleClass}>
+            <div key={index} className={`message-row ${isUser ? 'message-row-user' : 'message-row-bot'}`}>
+              <div className={`message-bubble ${isUser ? 'message-bubble-user' : 'message-bubble-bot'}`}>
                 <p>{msg.text}</p>
                 {msg.sender === "bot" && msg.sources && msg.sources.length > 0 && (
                   <div className="source-info">
-                    <div className="source-link-container">
-                      <strong className="source-strong">Source:</strong>
-                      <a
-                        href={msg.sources[0].url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="full-pdf-button"
-                      >
-                        {msg.sources[0].title} (p.{msg.sources[0].page})
-                      </a>
-                    </div>
+                    <strong className="source-strong">Source:</strong>
+                    <a
+                      href={msg.sources[0].url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="full-pdf-button"
+                    >
+                      {msg.sources[0].title} (p.{msg.sources[0].page})
+                    </a>
                   </div>
                 )}
               </div>
@@ -181,19 +211,32 @@ const ChatPanel = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={sendMessage} className="input-form">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask a question..."
-          className="input-field"
-          disabled={isLoading}
-        />
-        <button type="submit" className={`send-button ${isLoading ? 'disabled' : ''}`} disabled={isLoading}>
-          <SendIcon />
+      <div className="input-controls">
+         {/* Speaker Toggle */}
+        <button 
+          type="button" 
+          className={`icon-button speaker-button ${speechEnabled ? 'active' : ''}`}
+          onClick={() => setSpeechEnabled(!speechEnabled)}
+          title={speechEnabled ? "Mute Text-to-Speech" : "Enable Text-to-Speech"}
+        >
+          {speechEnabled ? <SpeakerOnIcon /> : <SpeakerOffIcon />}
         </button>
-      </form>
+
+        <form onSubmit={sendMessage} className="input-form">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Ask a question..."
+            className="input-field"
+            disabled={isLoading}
+          />
+          
+          <button type="submit" className={`send-button ${isLoading ? 'disabled' : ''}`} disabled={isLoading}>
+            <SendIcon />
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
@@ -318,7 +361,22 @@ const AdminPanel = () => {
     );
 };
 
-// --- Icons and Styling Components ---
+// --- Icon Components ---
+const SpeakerOnIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+  </svg>
+);
+
+const SpeakerOffIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+     <line x1="23" y1="9" x2="17" y2="15"></line>
+     <line x1="17" y1="9" x2="23" y2="15"></line>
+  </svg>
+);
+
 const ChatIcon = ({ isActive }) => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginRight: '8px' }}>
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" stroke={isActive ? "#2563eb" : "#475569"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
